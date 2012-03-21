@@ -15,9 +15,11 @@ Locally stored collections:
 
 ```javascript
 var SomeCollection = Backbone.Collection.extend({
+
   // This collection will be stored as the array 'SomeCollection' in LocalStorage
   // Its individual models will be stored as 'SomeCollection-someid'
   localStorage: new Backbone.LocalStorage("SomeCollection"),
+
   // ... everything else is normal
 });
 ```
@@ -26,9 +28,11 @@ Locally stored models:
 
 ```javascript
 var SomeModel = Backbone.Model.extend({
+
   // This model will be stored as 'SomeModel-someid' in LocalStorage
   // A LocalStorage reference to it will be included in an array in 'SomeModel'
   localStorage : new Backbone.LocalStorage('SomeModel')
+
   // ... everything else is normal
 });
 ```
@@ -37,9 +41,12 @@ Locally stored singletons:
 
 ```javascript
 var SomeSingleton = Backbone.Model.extend({
+  
   // This singleton model will always be stored as 'SomeSingleton' in LocalStorage
   // No reference array will be stored
   localStorage : new Backbone.LocalStorage('SomeModel', true)
+
+  // ... everything else is normal
 });
 ```
 
