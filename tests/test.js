@@ -1,4 +1,8 @@
 $(document).ready(function() {
+    
+    // Replace the default sync implementation
+    Backbone.sync = Backbone.localSync;
+
     var Library = Backbone.Collection.extend({
         localStorage: new Backbone.LocalStorage("libraryStore")
     });
@@ -93,7 +97,7 @@ $(document).ready(function() {
         });
         var Collection = Backbone.Collection.extend({
             model: Model,
-            localStorage: new Store('strangeID')
+            localStorage: new Backbone.LocalStorage('strangeID')
         });
         
         var collection = new Collection();
