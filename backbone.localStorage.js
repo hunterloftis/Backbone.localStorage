@@ -24,30 +24,70 @@ function guid() {
 Backbone.LocalStorage = window.Store = function(name, singleton) {
   this.name = name;
   this.singleton = singleton;
-  var store = this.localStorage().getItem(this.name);
-  this.records = (store && store.split(",")) || [];
+  this.createOrRetrieveRecords();
 };
 
 _.extend(Backbone.LocalStorage.prototype, {
 
+  createOrRetrieveRecords: function() {
+    if (!this.singleton) {
+      var store = this.localStorage().getItem(this.name);
+      this.records = (store && store.split(",")) || [];
+    }
+  },
+
+  addRecord: function(model) {
+    if (!this.singleton) {
+      if (!_.include(this.records, model.id.toString())) {
+        this.records.push(model.id.toString());
+        this.save();
+      }
+    }
+  },
+
+  // Return the array of all models currently in storage.
+  getAllRecords: function() {
+    if (!this.singleton) {
+      return _(this.records).chain()
+          .map(function(id){
+            return JSON.parse(this.localStorage().getItem( this.getKey(id) ));
+          }, this)
+          .compact()
+          .value();
+    }
+  },
+
   getKey: function(id) {
-    return this.name + '-' + id;
+    if (this.singleton) {
+      return this.name;
+    }
+    else {
+      if (id) return this.name + '-' + id;
+      else return undefined;
+    }
+  },
+
+  createId: function(model) {
+    if (!model.id && !this.singleton) {
+      model.id = model.attributes[model.idAttribute] = guid();
+    }
   },
 
   // Save the current state of the **Store** to *localStorage*.
   save: function() {
-    this.localStorage().setItem(this.name, this.records.join(","));
+    if (!this.singleton) {
+      this.localStorage().setItem(this.name, this.records.join(","));
+    }
   },
 
   // Add a model, giving it a (hopefully)-unique GUID, if it doesn't already
   // have an id of it's own.
   create: function(model) {
     var key;
-    if (!model.id) model.id = model.attributes[model.idAttribute] = guid();
+    this.createId(model);
     key = this.getKey(model.id);
     this.localStorage().setItem(key, JSON.stringify(model));
-    this.records.push(model.id.toString());
-    this.save();
+    this.addRecord(model);
     return model;
   },
 
@@ -55,36 +95,26 @@ _.extend(Backbone.LocalStorage.prototype, {
   update: function(model) {
     var key = this.getKey(model.id);
     this.localStorage().setItem(key, JSON.stringify(model));
-    if (!_.include(this.records, model.id.toString())) {
-      this.records.push(model.id.toString());
-      this.save();
-    }
+    this.addRecord(model);
     return model;
   },
 
   // Retrieve a model from `this.data` by id.
   find: function(model) {
-    return JSON.parse(this.localStorage().getItem( this.getKey(model.id) ));
-  },
-
-  // Return the array of all models currently in storage.
-  findAll: function() {
-    return _(this.records).chain()
-        .map(function(id){
-          return JSON.parse(this.localStorage().getItem( this.getKey(id) ));
-        }, this)
-        .compact()
-        .value();
+    var key = this.getKey(model.id);
+    return key ? JSON.parse(this.localStorage().getItem(key)) : this.getAllRecords();
   },
 
   // Delete a model from `this.data`, returning it.
   destroy: function(model) {
     var key = this.getKey(model.id);
     this.localStorage().removeItem(key);
-    this.records = _.reject(this.records, function(record_id){
-      return record_id == model.id.toString();
-    });
-    this.save();
+    if (!this.singleton) {
+      this.records = _.reject(this.records, function(record_id){
+        return record_id == model.id.toString();
+      });
+      this.save();
+    }
     return model;
   },
 
@@ -111,10 +141,10 @@ Backbone.LocalStorage.sync = window.Store.sync = Backbone.localSync = function(m
   var store = model.localStorage || model.collection.localStorage;
 
   switch (method) {
-    case "read":    resp = model.id != undefined ? store.find(model) : store.findAll(); break;
-    case "create":  resp = store.create(model);                            break;
-    case "update":  resp = store.update(model);                            break;
-    case "delete":  resp = store.destroy(model);                           break;
+    case "read":    resp = store.find(model);       break;
+    case "create":  resp = store.create(model);     break;
+    case "update":  resp = store.update(model);     break;
+    case "delete":  resp = store.destroy(model);    break;
   }
 
   if (resp) {

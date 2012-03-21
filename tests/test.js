@@ -136,9 +136,9 @@ $(document).ready(function() {
 
 	test("should remove book when destroying", function() {
 		book.save({author: 'fnord'})
-		equals(Book.prototype.localStorage.findAll().length, 1, 'book removed');
+		equals(Book.prototype.localStorage.getAllRecords().length, 1, 'book removed');
 		book.destroy()
-		equals(Book.prototype.localStorage.findAll().length, 0, 'book removed');
+		equals(Book.prototype.localStorage.getAllRecords().length, 0, 'book removed');
 	});
 	
     module("localStorage on singleton models", {
@@ -191,22 +191,15 @@ $(document).ready(function() {
     });
 
     test("should remove prefs when destroying", function() {
-
+        equals(prefs.get('display'), 'fullscreen', 'defaults to fullscreen');
+        prefs.save({ display: 'minimized' });
+        prefs.fetch();
+        equals(prefs.get('display'), 'minimized', 'initially saves minimized');
+        prefs.destroy();
+        prefs = null;
+        prefs = new Preferences();
+        prefs.fetch();
+        equals(prefs.get('display'), 'fullscreen', 'fetches default data after destroy');
     });
 
-    /*
-    test("should persist changes", function(){
-        book.save({ author: 'William Shakespeare'});
-        book.fetch();
-        equals(book.get('author'), 'William Shakespeare', 'author successfully updated');
-        equals(book.get('length'), 123, 'verify length is still there');
-    });
-
-    test("should remove book when destroying", function() {
-        book.save({author: 'fnord'})
-        equals(Book.prototype.localStorage.findAll().length, 1, 'book removed');
-        book.destroy()
-        equals(Book.prototype.localStorage.findAll().length, 0, 'book removed');
-    });
-*/
 });
