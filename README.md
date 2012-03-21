@@ -15,7 +15,7 @@ Locally stored collections:
 
 ```javascript
 var SomeCollection = Backbone.Collection.extend({
-  // This collection will be stored as 'SomeCollection' in LocalStorage
+  // This collection will be stored as the array 'SomeCollection' in LocalStorage
   // Its individual models will be stored as 'SomeCollection-someid'
   localStorage: new Backbone.LocalStorage("SomeCollection"),
   // ... everything else is normal
