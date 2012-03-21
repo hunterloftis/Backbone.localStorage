@@ -17,7 +17,7 @@ Simple replacement:
 Backbone.sync = Backbone.localSync;
 ```
 
-Advanced examples:
+Advanced replacement:
 
 ```javascript
 Backbone.ajaxSync = Backbone.sync;
