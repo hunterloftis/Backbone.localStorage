@@ -1,6 +1,6 @@
 # Backbone localStorage Adapter v1.0
 
-Quite simply a localStorage adapter for Backbone. It's a drop-in replacement for Backbone.Sync() to handle saving to a localStorage database.
+A localStorage adapter for Backbone. It's a drop-in replacement for Backbone.Sync() to handle saving to a localStorage database.
 
 ## Usage
 
@@ -11,22 +11,41 @@ Include Backbone.localStorage after having included Backbone.js:
 <script type="text/javascript" src="backbone.localStorage.js"></script>
 ```
 
-Create your collections like so:
+Locally stored collections:
 
 ```javascript
-window.SomeCollection = Backbone.Collection.extend({
-  
-  localStorage: new Backbone.LocalStorage("SomeCollection"), // Unique name within your app.
-  
-  // ... everything else is normal.
-  
+var SomeCollection = Backbone.Collection.extend({
+  // This collection will be stored as 'SomeCollection' in LocalStorage
+  // Its individual models will be stored as 'SomeCollection-someid'
+  localStorage: new Backbone.LocalStorage("SomeCollection"),
+  // ... everything else is normal
 });
 ```
-  
-Feel free to use Backbone as you usually would, this is a drop-in replacement.
+
+Locally stored models:
+
+```javascript
+var SomeModel = Backbone.Model.extend({
+  // This model will be stored as 'SomeModel-someid' in LocalStorage
+  // A LocalStorage reference to it will be included in an array in 'SomeModel'
+  localStorage : new Backbone.LocalStorage('SomeModel')
+  // ... everything else is normal
+});
+```
+
+Locally stored singletons:
+
+```javascript
+var SomeSingleton = Backbone.Model.extend({
+  // This singleton model will always be stored as 'SomeSingleton' in LocalStorage
+  // No reference array will be stored
+  localStorage : new Backbone.LocalStorage('SomeModel', true)
+});
+```
 
 ## Credits
 
+Thanks to [Hunter Loftis](https://github.com/hunterloftis) for singleton support and tests.
 Thanks to [Mark Woodall](https://github.com/llad) for the QUnit tests.
 Thanks to [Martin Häcker](https://github.com/dwt) for the many fixes and the test isolation.
 
