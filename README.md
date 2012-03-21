@@ -52,9 +52,9 @@ var SomeSingleton = Backbone.Model.extend({
 
 ## Credits
 
-Thanks to [Hunter Loftis](https://github.com/hunterloftis) for singleton support and tests.
-Thanks to [Mark Woodall](https://github.com/llad) for the QUnit tests.
-Thanks to [Martin Häcker](https://github.com/dwt) for the many fixes and the test isolation.
+  -  Thanks to [Hunter Loftis](https://github.com/hunterloftis) for singleton support and tests.
+  - Thanks to [Mark Woodall](https://github.com/llad) for the QUnit tests.
+  - Thanks to [Martin Häcker](https://github.com/dwt) for the many fixes and the test isolation.
 
 ## Licensed
 
