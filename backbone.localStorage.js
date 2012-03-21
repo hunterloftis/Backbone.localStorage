@@ -67,6 +67,8 @@ _.extend(Backbone.LocalStorage.prototype, {
     }
   },
 
+  // Giving a model a (hopefully)-unique GUID, if it doesn't already
+  // have an id of it's own.
   createId: function(model) {
     if (!model.id && !this.singleton) {
       model.id = model.attributes[model.idAttribute] = guid();
@@ -80,15 +82,21 @@ _.extend(Backbone.LocalStorage.prototype, {
     }
   },
 
-  // Add a model, giving it a (hopefully)-unique GUID, if it doesn't already
-  // have an id of it's own.
+  // Backbone skips the sync() method for models where isNew() === true
+  // (models without an `id` property)
+  // This is a hack to get around that and actually remove singletons from localstorage
+  onDestroy: function() {
+    this.localStorage.destroy(this);
+  },
+
+  // Add a model
   create: function(model) {
-    var key;
     this.createId(model);
-    key = this.getKey(model.id);
-    this.localStorage().setItem(key, JSON.stringify(model));
-    this.addRecord(model);
-    return model;
+    if (this.singleton) {
+      model.unbind('destroy', this.onDestroy, model);
+      model.bind('destroy', this.onDestroy, model);
+    }
+    return this.update(model);
   },
 
   // Update a model by replacing its copy in `this.data`.

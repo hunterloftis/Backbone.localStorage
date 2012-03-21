@@ -186,8 +186,18 @@ $(document).ready(function() {
         prefs.save({ display: 'experimental' });
         prefs = null;
         prefs = new Preferences();
+        equals(prefs.get('display'), 'fullscreen', 'display defaults to fullscreen');
         prefs.fetch();
         equals(prefs.get('display'), 'experimental', 'display is experimental');
+    });
+
+    test("should be able to add an id but still manipulate the same object", function() {
+        prefs.save({ id: 'myid' });
+        prefs = null;
+        prefs = new Preferences();
+        equals(typeof prefs.id, 'undefined', 'id defaults to undefined');
+        prefs.fetch();
+        equals(prefs.id, 'myid', 'id is set to myid');
     });
 
     test("should remove prefs when destroying", function() {
