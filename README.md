@@ -31,10 +31,10 @@ var ComplexModel = Backbone.Model.extend({
     if (this.get('public')) Backbone.ajaxSync.apply(this, arguments);
     else Backbone.localSync.apply(this, arguments);
   }
-})
+});
 ```
 
-Locally stored collections:
+### Collections
 
 ```javascript
 var SomeCollection = Backbone.Collection.extend({
@@ -47,7 +47,7 @@ var SomeCollection = Backbone.Collection.extend({
 });
 ```
 
-Locally stored models:
+### Models
 
 ```javascript
 var SomeModel = Backbone.Model.extend({
@@ -60,7 +60,7 @@ var SomeModel = Backbone.Model.extend({
 });
 ```
 
-Locally stored singletons:
+### Singletons
 
 ```javascript
 var SomeSingleton = Backbone.Model.extend({
