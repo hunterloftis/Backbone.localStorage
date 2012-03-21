@@ -4,8 +4,6 @@ A localStorage adapter for Backbone.
 
 ## Usage
 
-Include Backbone.localStorage after having included Backbone.js:
-
 ```html
 <script type="text/javascript" src="backbone.js"></script>
 <script type="text/javascript" src="backbone.localStorage.js"></script>
