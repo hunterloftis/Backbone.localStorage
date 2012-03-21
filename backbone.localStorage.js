@@ -21,13 +21,18 @@ function guid() {
 // Our Store is represented by a single JS object in *localStorage*. Create it
 // with a meaningful name, like the name you'd give a table.
 // window.Store is deprectated, use Backbone.LocalStorage instead
-Backbone.LocalStorage = window.Store = function(name) {
+Backbone.LocalStorage = window.Store = function(name, singleton) {
   this.name = name;
+  this.singleton = singleton;
   var store = this.localStorage().getItem(this.name);
   this.records = (store && store.split(",")) || [];
 };
 
 _.extend(Backbone.LocalStorage.prototype, {
+
+  getKey: function(id) {
+    return this.name + '-' + id;
+  },
 
   // Save the current state of the **Store** to *localStorage*.
   save: function() {
@@ -37,8 +42,10 @@ _.extend(Backbone.LocalStorage.prototype, {
   // Add a model, giving it a (hopefully)-unique GUID, if it doesn't already
   // have an id of it's own.
   create: function(model) {
+    var key;
     if (!model.id) model.id = model.attributes[model.idAttribute] = guid();
-    this.localStorage().setItem(this.name+"-"+model.id, JSON.stringify(model));
+    key = this.getKey(model.id);
+    this.localStorage().setItem(key, JSON.stringify(model));
     this.records.push(model.id.toString());
     this.save();
     return model;
@@ -46,28 +53,37 @@ _.extend(Backbone.LocalStorage.prototype, {
 
   // Update a model by replacing its copy in `this.data`.
   update: function(model) {
-    this.localStorage().setItem(this.name+"-"+model.id, JSON.stringify(model));
-    if (!_.include(this.records, model.id.toString())) this.records.push(model.id.toString()); this.save();
+    var key = this.getKey(model.id);
+    this.localStorage().setItem(key, JSON.stringify(model));
+    if (!_.include(this.records, model.id.toString())) {
+      this.records.push(model.id.toString());
+      this.save();
+    }
     return model;
   },
 
   // Retrieve a model from `this.data` by id.
   find: function(model) {
-    return JSON.parse(this.localStorage().getItem(this.name+"-"+model.id));
+    return JSON.parse(this.localStorage().getItem( this.getKey(model.id) ));
   },
 
   // Return the array of all models currently in storage.
   findAll: function() {
     return _(this.records).chain()
-        .map(function(id){return JSON.parse(this.localStorage().getItem(this.name+"-"+id));}, this)
+        .map(function(id){
+          return JSON.parse(this.localStorage().getItem( this.getKey(id) ));
+        }, this)
         .compact()
         .value();
   },
 
   // Delete a model from `this.data`, returning it.
   destroy: function(model) {
-    this.localStorage().removeItem(this.name+"-"+model.id);
-    this.records = _.reject(this.records, function(record_id){return record_id == model.id.toString();});
+    var key = this.getKey(model.id);
+    this.localStorage().removeItem(key);
+    this.records = _.reject(this.records, function(record_id){
+      return record_id == model.id.toString();
+    });
     this.save();
     return model;
   },

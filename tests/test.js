@@ -1,8 +1,6 @@
 $(document).ready(function() {
     var Library = Backbone.Collection.extend({
         localStorage: new Backbone.LocalStorage("libraryStore")
-        
-        // is the problem with my library that is has no model reference?
     });
 
     var attrs = {
@@ -123,7 +121,7 @@ $(document).ready(function() {
 	var book = null;
     
 	test("should overwrite unsaved changes when fetching", function() {
-		book.save()
+		book.save();
         book.set({ 'title': "Wombat's Fun Adventure" });
         book.fetch();
         equals(book.get('title'), 'The Tempest', 'model created');
@@ -143,4 +141,72 @@ $(document).ready(function() {
 		equals(Book.prototype.localStorage.findAll().length, 0, 'book removed');
 	});
 	
+    module("localStorage on singleton models", {
+        setup: function() {
+            window.localStorage.clear();
+            prefs = new Preferences();
+        }
+    });
+    
+    var Preferences = Backbone.Model.extend({
+        defaults: {
+            display: 'fullscreen',
+            menu: ['file','edit'],
+            items: 30
+        },
+        localStorage : new Backbone.LocalStorage('Preferences', true)
+    });
+    
+    var prefs = null;
+    
+    test("should start with a basic model", function() {
+        var obj = prefs.toJSON();
+        equals(obj.display, 'fullscreen', 'model created');
+        equals(obj.items, 30);
+        equals(obj.menu[0], 'file');
+        equals(obj.menu[1], 'edit');
+    });
+    
+    test("should persist changes", function() {
+        prefs.set({ display: 'normal' });
+        prefs.save();
+        prefs.fetch();
+        equals(prefs.get('display'), 'normal', 'display successfully updated');
+        equals(prefs.get('items'), 30, 'items still there');
+    });
+
+    test("should not add an id", function() {
+        equals(typeof prefs.id, 'undefined', 'prefs.id is undefined pre-save');
+        prefs.save();
+        prefs.fetch();
+        equals(typeof prefs.id, 'undefined', 'prefs.id is undefined post-save');
+    });
+
+    test("should be able to be destroyed and reloaded without id", function() {
+        prefs.save({ display: 'experimental' });
+        prefs = null;
+        prefs = new Preferences();
+        prefs.fetch();
+        equals(prefs.get('display'), 'experimental', 'display is experimental');
+    });
+
+    test("should remove prefs when destroying", function() {
+
+    });
+
+    /*
+    test("should persist changes", function(){
+        book.save({ author: 'William Shakespeare'});
+        book.fetch();
+        equals(book.get('author'), 'William Shakespeare', 'author successfully updated');
+        equals(book.get('length'), 123, 'verify length is still there');
+    });
+
+    test("should remove book when destroying", function() {
+        book.save({author: 'fnord'})
+        equals(Book.prototype.localStorage.findAll().length, 1, 'book removed');
+        book.destroy()
+        equals(Book.prototype.localStorage.findAll().length, 0, 'book removed');
+    });
+*/
 });
