@@ -1,6 +1,6 @@
 # Backbone localStorage Adapter v1.1
 
-A localStorage adapter for Backbone. It's a drop-in replacement for Backbone.Sync() to handle saving to a localStorage database.
+A localStorage adapter for Backbone.
 
 ## Usage
 
