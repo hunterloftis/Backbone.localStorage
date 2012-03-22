@@ -50,7 +50,7 @@
       if (!this.singleton) {
         return _(this.records).chain()
             .map(function(id){
-              return JSON.parse(this.localStorage().getItem( this.getKey(id) ));
+              return this.safeParse(this.localStorage().getItem( this.getKey(id) ));
             }, this)
             .compact()
             .value();
@@ -65,6 +65,17 @@
         if (id) return this.name + '-' + id;
         else return undefined;
       }
+    },
+
+    safeParse: function(str) {
+      var res;
+      try {
+        res = JSON.parse(str);
+      }
+      catch(e) {
+        res = {};
+      }
+      return res;
     },
 
     // Giving a model a (hopefully)-unique GUID, if it doesn't already
@@ -110,7 +121,7 @@
     // Retrieve a model from `this.data` by id.
     find: function(model) {
       var key = this.getKey(model.id);
-      return key ? JSON.parse(this.localStorage().getItem(key)) : this.getAllRecords();
+      return key ? this.safeParse(this.localStorage().getItem(key)) : this.getAllRecords();
     },
 
     // Delete a model from `this.data`, returning it.
